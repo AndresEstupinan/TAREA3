@@ -82,6 +82,7 @@ filtrada= np.fft.ifft(m)
 #plt.plot(Ax, np.real(filtrada2)+np.imag(filtrada2), label="Signal filtrada2")
 #plt.plot(Ax, Ay)
 #plt.savefig("EstupinanAndres_filtrada2.pdf")
+#solo para comparar
 
 
 plt.figure()
@@ -139,9 +140,18 @@ nGOOD=512
 dtGOOD= X[1]-X[0]
 freqGOOD= fftfreq(nGOOD,dtGOOD)
 
-plt.figure()
-plt.plot(freqBAD,abs(FBAD), label="datos")
-plt.plot(freqGOOD,abs(F11) , label="inter cua")
+plt.figure(1)
+plt.subplot(311)
+plt.plot(freqBAD,abs(FBAD), label="datos", c="green")
+plt.xlabel("Frecuencias")
+plt.ylabel("F(f(t))")
+plt.legend()
+plt.subplot(312)
+plt.plot(freqGOOD,abs(F11) , label="inter cua", c="red")
+plt.xlabel("Frecuencias")
+plt.ylabel("F(f(t))")
+plt.legend()
+plt.subplot(313)
 plt.plot(freqGOOD, abs(F22), label="inter cub")
 plt.xlabel("Frecuencias")
 plt.ylabel("F(f(t))")
@@ -149,6 +159,65 @@ plt.legend()
 plt.savefig("EstupinanAndres_TF_Interpola.pdf")
 
 
+#10
+
+print("La transformada de la funcion incompleta tiene bastantes picos no despreciables lejos de los picos principales. Mientras que en la interpolacion cuadrada y aun mas en la cubica, los picos se centran mas en el centro(y son mas altos)")
+
+#11
+
+FBAD1=FBAD
+FBAD2=FBAD
+
+
+for x in range(len(freqBAD)):
+	if(abs(freqBAD[x])>1000):
+		FBAD1[x]=0
+for x in range(len(freqBAD)):
+	if(abs(freqBAD[x])>500):
+		FBAD2[x]=0
+
+F111=F11
+F112=F11
+
+for x in range(len(freqGOOD)):
+	if(abs(freqGOOD[x])>1000):
+		F111[x]=0
+for x in range(len(freqGOOD)):
+	if(abs(freqGOOD[x])>500):
+		F112[x]=0
+
+F221=F22
+F222=F22
+
+for x in range(len(freqGOOD)):
+	if(abs(freqGOOD[x])>1000):
+		F221[x]=0
+for x in range(len(freqGOOD)):
+	if(abs(freqGOOD[x])>500):
+		F222[x]=0
+
+filtradaBAD1= np.fft.ifft(FBAD1)
+filtradaBAD2= np.fft.ifft(FBAD2)
+
+filtradaGOOD11=np.fft.ifft(F111)
+filtradaGOOD12=np.fft.ifft(F112)
+
+filtradaGOOD21=np.fft.ifft(F221)
+filtradaGOOD22=np.fft.ifft(F222)
+
+plt.figure()
+plt.subplot(211)
+plt.plot(B1, np.real(filtradaBAD1)+np.imag(filtradaBAD1), label="Signal filtrada 1000hz Datos")
+plt.plot(X, np.real(filtradaGOOD11)+np.imag(filtradaGOOD11), label="Signal filtrada 1000hz Quadratic")
+plt.plot(X, np.real(filtradaGOOD21)+np.imag(filtradaGOOD21), label="Signal filtrada 1000hz Cubic")
+plt.legend()
+
+plt.subplot(212)
+plt.plot(B1, np.real(filtradaBAD2)+np.imag(filtradaBAD2), label="Signal filtrada 500hz Datos")
+plt.plot(X, np.real(filtradaGOOD12)+np.imag(filtradaGOOD12), label="Signal filtrada 500hz Quadratic")
+plt.plot(X, np.real(filtradaGOOD22)+np.imag(filtradaGOOD22), label="Signal filtrada 500hz Cubic")
+plt.legend()
+plt.savefig("EstupinanAndres_2Filtros.pdf")
 
 
 
