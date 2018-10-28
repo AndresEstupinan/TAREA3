@@ -100,18 +100,9 @@ print (" No se puede hacer la transformada de fourier de datos incompletos, pues
 B1=B[:,0]
 B2=B[:,1]
 
-f1=interp1d(B1,B2, kind="quadratic")
-f2=interp1d(B1,B2, kind="cubic")
 
-plt.figure()
-plt.plot(B1,B2)
-#plt.plot(B1,f1)
-#plt.plot(B1,f2)
-plt.show()
 
-#print (f1)
-
-X=np.linspace(0,0.028515625,1000)
+X=np.linspace(0,0.028515625,512)
 def cuadraticsplines(A,B,X):
 	cuadraticBspline = sc.interpolate.splrep(A, B, k=2)
 	return sc.interpolate.splev(X ,cuadraticBspline)
@@ -121,12 +112,47 @@ def cubicsplines(A,B,X):
 	cubicBspline = sc.interpolate.splrep(A, B, k=3)
 	return sc.interpolate.splev(X ,cubicBspline)
 
+#plt.figure()
+#plt.scatter(B1,B2)
+#plt.plot(X, cuadraticsplines(B1,B2,X))
+#plt.plot(X, cubicsplines(B1,B2,X))
+#plt.legend(['Cuadratic inter','Cubic inter', 'Puntos'])
+#plt.savefig("EstupinanAndres_Interpola.pdf")
+#para ver las interpolaciones
+
+X11=cuadraticsplines(B1,B2,X)
+X22=cubicsplines(B1,B2,X)
+
+
+
+#9
+
+FBAD=fft(B2)
+nBAD=len(B1)
+dtBAD=B1[1]-B1[0]
+freqBAD= fftfreq(nBAD,dtBAD)
+
+
+F11=fft(X11)
+F22=fft(X22)
+nGOOD=512
+dtGOOD= X[1]-X[0]
+freqGOOD= fftfreq(nGOOD,dtGOOD)
+
 plt.figure()
-plt.scatter(B1,B2)
-plt.plot(X, cuadraticsplines(B1,B2,X))
-plt.plot(X, cubicsplines(B1,B2,X))
-plt.legend(['Cuadratic inter','Cubic inter', 'Puntos'])
-plt.savefig("EstupinanAndres_Interpola.pdf")
+plt.plot(freqBAD,abs(FBAD), label="datos")
+plt.plot(freqGOOD,abs(F11) , label="inter cua")
+plt.plot(freqGOOD, abs(F22), label="inter cub")
+plt.xlabel("Frecuencias")
+plt.ylabel("F(f(t))")
+plt.legend()
+plt.savefig("EstupinanAndres_TF_Interpola.pdf")
+
+
+
+
+
+
 
 
 
