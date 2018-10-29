@@ -29,7 +29,14 @@ for x in range(len(arbolf[:,1])):
 plt.figure()
 plt.imshow(np.abs(arbolf),norm=LogNorm())#, norm=NoNorm()) 
 plt.colorbar()
-plt.savefig("EstupinanAndres_FT2D_filtrada.pdf")			
+plt.savefig("EstupinanAndres_FT2D_filtrada.pdf")
+
+#4
+
+arbol2=fftpack.ifft2(arbolf).real
+plt.figure()
+plt.imshow(arbol2,cmap="gray")
+plt.savefig("EstupinanAndres_Imagen_filtrada.pdf")			
 
 
 
