@@ -5,14 +5,14 @@ from scipy.interpolate import interp1d
 import scipy as sc
 from scipy import interpolate
 
-#1
+#1 Almacenamos los datos de signal y incompletos
 
 
 A=np.genfromtxt("signal.dat", delimiter=",")
 B=np.genfromtxt("incompletos.dat", delimiter=",")
 
 
-#2
+#2 Graficamos
 
 Ax=A[:,0]
 Ay=A[:,1]
@@ -25,7 +25,7 @@ plt.legend()
 plt.savefig("EstupinanAndres_signal.pdf")	
 
 
-#3
+#3 Usamos la implementacion propia para fourier 
 
 n=len(Ax)
 m=list()
@@ -39,12 +39,13 @@ for b in range(n):
 	for k in range(n):
 		s=s+(Ay[k]*np.exp((-1j)*2.0*np.pi*k*(float(b)/float(n))))
 	
-#4
+
+#4 Graficamos usando el paquete fftfreq
 
 
 
 
-#fft_x= fft(Ay)
+mp= fft(Ay)
 #plt.figure()
 freq= fftfreq(n,dt)
 #plt.plot(freq,(fft_x))
@@ -57,23 +58,21 @@ plt.ylabel("F(f(t))")
 plt.legend()
 plt.savefig("EstupinanAndres_TF.pdf")
 
-#5
+#5 Frecuencias principales
 
-print ("las frecuencias principales de la señal son los picos mas altos de la grafica. En ese caso son los picos que superan el valor de 500 en el eje y, y estan cerca al 0 de frecuencias")
+print ("las frecuencias principales de la signal son los picos mas altos de la grafica. En ese caso son los picos que superan el valor de 500 en el eje y, y estan cerca al 0 de frecuencias")
 
-#6
+#6 Realizamos el filtro
 
 for x in range(len(freq)):
 	if(abs(freq[x])>1000):
 		m[x]=0
-#for x in range(len(freq)):
-#	if(abs(freq[x])>1000):
-#		fft_x[x]=0
+
 
 #plt.figure()
 #plt.plot(freq,np.abs(m))
 #plt.show()
-#para ver la transformada filtrada
+#para ver la transformada filtrada, solo para comparar
 
 filtrada= np.fft.ifft(m)
 #filtrada2= np.fft.ifft(fft_x)
@@ -87,16 +86,15 @@ filtrada= np.fft.ifft(m)
 
 plt.figure()
 plt.plot(Ax, np.real(filtrada)+np.imag(filtrada), label="Signal filtrada")
-plt.plot(Ax, Ay)
 plt.savefig("EstupinanAndres_filtrada.pdf")
 
 #7
 
-print (" No se puede hacer la transformada de fourier de datos incompletos, pues la tr")
+print (" No se puede hacer la transformada de fourier de datos incompletos, pues el fin de realizar tal transformada es transformar una funcion que depende del tiempo a una que dependa de las frecuencias. Si los datos se encuentran incompletos, no se puede saber con presicion las frecuencias en cada instante de tiempo y por lo tanto la implementacion que estamos realizando para la transformada serian varios picos no despreciables de frecuencias donde se pierde la informacion de la funcion original. ")
 
 
 	
-#8
+#8 Interpolacion usando cubic y quadratic splines (para que se ajusten mejor a la funcion deseada)
 
 B1=B[:,0]
 B2=B[:,1]
@@ -142,7 +140,7 @@ freqGOOD= fftfreq(nGOOD,dtGOOD)
 
 plt.figure(1)
 plt.subplot(311)
-plt.plot(freqBAD,abs(FBAD), label="datos", c="green")
+plt.plot(freq,np.abs(mp), label="datos", c="green")
 plt.xlabel("Frecuencias")
 plt.ylabel("F(f(t))")
 plt.legend()
@@ -158,22 +156,24 @@ plt.ylabel("F(f(t))")
 plt.legend()
 plt.savefig("EstupinanAndres_TF_Interpola.pdf")
 
+#Aca ploteo los datos de signal.dat filtrados usando el paquete para que se pueda apreciar mejor la diferencia entre la transformada de la funcion completa, y las obtenidas de las interpolaciones.
+
 
 #10
 
-print("La transformada de la funcion incompleta tiene bastantes picos no despreciables lejos de los picos principales. Mientras que en la interpolacion cuadrada y aun mas en la cubica, los picos se centran mas en el centro(y son mas altos)")
+print("La transformada de la funcion original tiene picos con frecuencias menores al alejarnos del cero de la funcion comparado con la transformada de las interpolaciones")
 
 #11
 
-FBAD1=FBAD
-FBAD2=FBAD
+FBAD1=mp
+FBAD2=mp
 
 
 for x in range(len(freqBAD)):
 	if(abs(freqBAD[x])>1000):
 		FBAD1[x]=0
-for x in range(len(freqBAD)):
-	if(abs(freqBAD[x])>500):
+for x in range(len(freq)):
+	if(abs(freq[x])>500):
 		FBAD2[x]=0
 
 F111=F11
@@ -195,6 +195,9 @@ for x in range(len(freqGOOD)):
 for x in range(len(freqGOOD)):
 	if(abs(freqGOOD[x])>500):
 		F222[x]=0
+for x in range(len(freq)):
+	if(abs(freq[x])>1000):
+		mp[x]=0
 
 filtradaBAD1= np.fft.ifft(FBAD1)
 filtradaBAD2= np.fft.ifft(FBAD2)
@@ -207,19 +210,19 @@ filtradaGOOD22=np.fft.ifft(F222)
 
 plt.figure()
 plt.subplot(211)
-plt.plot(B1, np.real(filtradaBAD1)+np.imag(filtradaBAD1), label="Signal filtrada 1000hz Datos")
+plt.plot(Ax, np.real(filtradaBAD1)+np.imag(filtradaBAD1), label="Signal filtrada 1000hz Datos")
 plt.plot(X, np.real(filtradaGOOD11)+np.imag(filtradaGOOD11), label="Signal filtrada 1000hz Quadratic")
 plt.plot(X, np.real(filtradaGOOD21)+np.imag(filtradaGOOD21), label="Signal filtrada 1000hz Cubic")
 plt.legend()
 
 plt.subplot(212)
-plt.plot(B1, np.real(filtradaBAD2)+np.imag(filtradaBAD2), label="Signal filtrada 500hz Datos")
+plt.plot(Ax, np.real(filtradaBAD2)+np.imag(filtradaBAD2), label="Signal filtrada 500hz Datos")
 plt.plot(X, np.real(filtradaGOOD12)+np.imag(filtradaGOOD12), label="Signal filtrada 500hz Quadratic")
 plt.plot(X, np.real(filtradaGOOD22)+np.imag(filtradaGOOD22), label="Signal filtrada 500hz Cubic")
 plt.legend()
 plt.savefig("EstupinanAndres_2Filtros.pdf")
 
-
+#Aca ploteo los datos de signal.dat filtrados usando el paquete para que se pueda apreciar mejor la diferencia entre la transformada de la funcion completa, y las obtenidas de las interpolaciones.
 
 
 
